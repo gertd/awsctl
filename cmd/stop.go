@@ -20,6 +20,7 @@ func init() {
 func runStop(cmd *cobra.Command, args []string) error {
 
 	client := shared.NewEC2Client(region)
+	defer client.Close()
 
 	client.StopInstance(name)
 	client.GetInstances().Print()
