@@ -177,6 +177,17 @@ func (c *EC2Client) StopInstance(name string) {
 	return
 }
 
+// GetPasswordData --
+func (c *EC2Client) GetPasswordData(instanceID string) string {
+
+	input := ec2.GetPasswordDataInput{InstanceId: &instanceID}
+	output, err := c.client.GetPasswordData(&input)
+	if err != nil {
+		log.Println(err)
+	}
+	return *output.PasswordData
+}
+
 // Instances --
 type Instances ec2.DescribeInstancesOutput
 

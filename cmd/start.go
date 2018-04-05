@@ -12,10 +12,6 @@ var startCmd = &cobra.Command{
 	RunE:  runStart,
 }
 
-var (
-	name string
-)
-
 func init() {
 	RootCmd.AddCommand(startCmd)
 	startCmd.Flags().StringVar(&name, "name", "", "AWS instance name: default all")
