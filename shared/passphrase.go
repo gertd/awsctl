@@ -10,7 +10,7 @@ import (
 // PassPhraseFunc -- callback function to set the passphrase
 type PassPhraseFunc func() string
 
-// NoPassPhrase -- return argument as passphrase
+// NoPassPhrase -- return empty == no passphrase
 func NoPassPhrase() string {
 	return ""
 }
