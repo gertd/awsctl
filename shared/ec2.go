@@ -44,10 +44,10 @@ func (c *EC2Client) Close() {
 
 // GetInstances --
 // TODO -- add ability to filter?
-func (c *EC2Client) GetInstances() *Instances {
+func (c *EC2Client) GetInstances(filters []*ec2.Filter) *Instances {
 
 	describeInstanceInput := &ec2.DescribeInstancesInput{
-		Filters: InstanceFilter(),
+		Filters: filters,
 	}
 
 	var err error
@@ -63,23 +63,15 @@ func (c *EC2Client) GetInstances() *Instances {
 }
 
 // StartInstance --
-func (c *EC2Client) StartInstance(name string) {
+func (c *EC2Client) StartInstance(filters []*ec2.Filter) {
 
-	instanceFilters := []*ec2.Filter{}
-	instanceFilters = append(instanceFilters, &ec2.Filter{
+	filters = append(filters, &ec2.Filter{
 		Name:   aws.String("instance-state-name"),
 		Values: []*string{aws.String("stopped")},
 	})
 
-	if len(name) > 0 {
-		instanceFilters = append(instanceFilters, &ec2.Filter{
-			Name:   aws.String("tag:Name"),
-			Values: []*string{aws.String(name)},
-		})
-	}
-
 	describeInstanceInput := &ec2.DescribeInstancesInput{
-		Filters: instanceFilters,
+		Filters: filters,
 	}
 
 	instances, err := c.client.DescribeInstances(describeInstanceInput)
@@ -123,23 +115,15 @@ func (c *EC2Client) StartInstance(name string) {
 }
 
 // StopInstance --
-func (c *EC2Client) StopInstance(name string) {
+func (c *EC2Client) StopInstance(filters []*ec2.Filter) {
 
-	instanceFilters := []*ec2.Filter{}
-	instanceFilters = append(instanceFilters, &ec2.Filter{
+	filters = append(filters, &ec2.Filter{
 		Name:   aws.String("instance-state-name"),
 		Values: []*string{aws.String("running")},
 	})
 
-	if len(name) > 0 {
-		instanceFilters = append(instanceFilters, &ec2.Filter{
-			Name:   aws.String("tag:Name"),
-			Values: []*string{aws.String(name)},
-		})
-	}
-
 	describeInstanceInput := &ec2.DescribeInstancesInput{
-		Filters: instanceFilters,
+		Filters: filters,
 	}
 
 	instances, err := c.client.DescribeInstances(describeInstanceInput)
