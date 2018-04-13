@@ -117,7 +117,7 @@ Capabilities to add:
 
 - [ ] command line login override (incl masked password entry)
 - [ ] support for selecting configuration
-- [ ] short parameter support for instance (-i) and name (-n)
-- [ ] make start/stop all explicit using commandline parameter --all
-- [ ] support list -instance-id or --name for singleton status
+- [X] short parameter support for instance (-i) and name (-n)
+- [X] make start/stop all explicit using commandline parameter --all
+- [X] support list -instance-id or --name for singleton status
 - [ ] add header to list output
