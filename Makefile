@@ -25,6 +25,10 @@ endif
 
 GOARCH=amd64
 
+VERSION=`git describe --tags`
+BUILD=`date +%FT%T%z`
+LDFLAGS=-ldflags "-w -s -X github.com/gertd/awsctl/cmd.version=${VERSION} -X github.com/gertd/awsctl/cmd.build=${BUILD}"
+
 .PHONY: all get clean init build test check install
 all: build check test
 
@@ -42,7 +46,7 @@ init:
 
 build: init
 	@echo "$(WARN_COLOR)==> build GOOS=$(GOOS) GOARCH=$(GOARCH) $(ROOT_DIR) $(NO_COLOR)"
-	@GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o $(BIN_DIR)/aws-ctl ./
+	@GOOS=$(GOOS) GOARCH=$(GOARCH) go build $(LDFLAGS) -o $(BIN_DIR)/aws-ctl ./
 
 install: 
 	@echo "$(WARN_COLOR)==> install $(NO_COLOR)"

@@ -7,12 +7,21 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	defName       = ""
+	defInstanceID = ""
+	defRegion     = ""
+	defKeyFile    = ""
+	defAll        = false
+)
+
 var (
 	cfgFile    string
 	region     string
 	name       string
 	keyFile    string
 	instanceID string
+	all        bool
 )
 
 // RootCmd -- represents the base command when called without any subcommands
@@ -32,6 +41,7 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize()
+	cobra.EnableCommandSorting = false
 
 	RootCmd.PersistentFlags().StringVar(&region, "region", "", "AWS region: default all")
 }

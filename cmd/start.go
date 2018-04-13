@@ -14,7 +14,9 @@ var startCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(startCmd)
-	startCmd.Flags().StringVar(&name, "name", "", "AWS instance name: default all")
+	startCmd.Flags().StringVarP(&name, "name", "n", "", "AWS instance name")
+	startCmd.Flags().StringVarP(&instanceID, "instance-id", "i", "", "AWS instance ID")
+	startCmd.Flags().BoolVar(&all, "all", false, "start all instances: default false")
 }
 
 func runStart(cmd *cobra.Command, args []string) error {
@@ -22,8 +24,16 @@ func runStart(cmd *cobra.Command, args []string) error {
 	client := shared.NewEC2Client(region)
 	defer client.Close()
 
-	client.StartInstance(name)
-	client.GetInstances().Print()
+	f := shared.NewInstanceFilter()
+
+	if instanceID != defInstanceID {
+		f.Add("instance-id", instanceID)
+	} else if name != defName {
+		f.Add("tag:Name", name)
+	}
+
+	client.StartInstance(f.Get())
+	client.GetInstances(f.Get()).Print()
 
 	return nil
 }
