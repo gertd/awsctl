@@ -50,7 +50,7 @@ build: init
 
 install: 
 	@echo "$(WARN_COLOR)==> install $(NO_COLOR)"
-	@GOOS=$(GOOS) GOARCH=$(GOARCH) go install ./
+	@GOOS=$(GOOS) GOARCH=$(GOARCH) go install $(LDFLAGS) ./
 
 test:
 	@echo "$(WARN_COLOR)==> test $(NO_COLOR)"

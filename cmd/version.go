@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	appName = "AWSCTL"
+	appName = "awsctl"
 )
 
 var versionCmd = &cobra.Command{
@@ -28,7 +28,7 @@ func init() {
 }
 
 func runVersion(cmd *cobra.Command, args []string) error {
-	fmt.Fprintf(os.Stdout, "%s - version %sx%s  [%s-%s]\n",
+	fmt.Fprintf(os.Stdout, "%s - version [%s]@[%s]  [%s-%s]\n",
 		appName,
 		version,
 		build,
