@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/gertd/awsctl.svg?branch=dev)](https://travis-ci.org/gertd/awsctl)
+
 # awsctl
 Simple AWS command line for managing EC2 instances
 
