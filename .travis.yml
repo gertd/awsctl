@@ -1,0 +1,19 @@
+language: go
+go:
+  - 1.10.1
+cache:
+  directories:
+    - $HOME/local
+before_install:
+  - curl -L -s https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-linux-amd64 -o $GOPATH/bin/dep
+  - chmod +x $GOPATH/bin/dep
+  - go get -u golang.org/x/tools/cmd/goimports
+  - go get -u golang.org/x/lint/golint
+install:
+  - dep ensure
+notifications:
+  email: false
+env:
+  global:
+  - "PATH=$PATH:$HOME/local/bin"
+  - DEP_VERSION="0.4.1"
