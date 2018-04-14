@@ -30,5 +30,4 @@ deploy:
   file: release/*
   skip_cleanup: true
   on:
-    repo: gertd/awsctl
     tags: true
