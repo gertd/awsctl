@@ -1,19 +1,27 @@
 language: go
 go:
-  - 1.10.1
+- 1.10.1
 cache:
   directories:
-    - $HOME/local
+  - "$HOME/local"
 before_install:
-  - curl -L -s https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-linux-amd64 -o $GOPATH/bin/dep
-  - chmod +x $GOPATH/bin/dep
-  - go get -u golang.org/x/tools/cmd/goimports
-  - go get -u golang.org/x/lint/golint
+- curl -L -s https://github.com/golang/dep/releases/download/v${DEP_VERSION}/dep-linux-amd64
+  -o $GOPATH/bin/dep
+- chmod +x $GOPATH/bin/dep
+- go get -u golang.org/x/tools/cmd/goimports
+- go get -u golang.org/x/lint/golint
 install:
-  - dep ensure
+- dep ensure
 notifications:
   email: false
 env:
   global:
-  - "PATH=$PATH:$HOME/local/bin"
+  - PATH=$PATH:$HOME/local/bin
   - DEP_VERSION="0.4.1"
+deploy:
+  provider: releases
+  api_key:
+    secure: QnhqOGFm+hga63fR3Fj+/CaI+2/APee9WrRV42adSPMSbIOmF9KquFAQcuSVys7+LL5GkeKR+K0Ck0fJkUVtSDxXIFZHA1Ks9VF8y7BKqeLBMGAm6trYq8ZyohIGy6myLb8UneYBu4TfsHKDvLCAo9OSlAX9BmRt5yl2Pm++8dJKt9SkeQM6AijODc6bHJxKFYsATT12KMyl/lRQwsLPth29qeob8hLqkSsC+KANfYspmurkbLLrdX01oWBAO8bZnwBjjSxDbSD6DoD3UDuMtFCVRRCkWPsGqXQ+TlUHQnHUpWjdC/GNif2Ki2MaooIJutOcLRNsrEGnMZrLt6RmzBJDaF/RMs6uNvSMgOHF0ij1UEQzYjBadFnqHqq2f+OWNSLaqNkPT+0GZ+K9CYzezS/cTyRFqxrcYxDqNE4NFx6NYGKyjyJXg+vpn3lCf7OOKLERV2z9siKtpUDPqF4i6TaJpTXVgzkQkGqZS18kOshD8p1czW/uAnyu8hF0ICwf3gGj/yEMtxm9cJUDGcYz9l8xYd2ZaFdCfDYbuzebVswzylXqSj1wKIse6CHhGj/SQTjOp3WAGfIJAYda9pfYIO2bbEo2Ljz5ReFSAh3Nib9HTFUZq17TJzp2i4HIdZPe9HuGm5bNaiEkoBQpBmJjYZiCfKU0q/4hwYn0nGOQ7p0=
+  file: "./bin/*"
+  on:
+    repo: gertd/awsctl
