@@ -30,7 +30,7 @@ BUILD=`date +%FT%T%z`
 LDFLAGS=-ldflags "-w -s -X github.com/gertd/awsctl/cmd.version=${VERSION} -X github.com/gertd/awsctl/cmd.build=${BUILD}"
 
 .PHONY: all get clean init build test check install
-all: build check test
+all: build test check
 
 clean: 
 	@echo "$(WARN_COLOR)==> Clean $(BIN_DIR) $(NO_COLOR)"
@@ -60,12 +60,12 @@ check: format lint vet
 
 format:
 	@echo "$(ATTN_COLOR)==> format$(NO_COLOR)"
-	@echo $(PKGSDIRS) | xargs -I '{p}' -n1 goimports -e -l {p} | sed "s/^/Failed: /"
+	@echo $(PKGSDIRS) | xargs -I '{p}' -n1 $(GOPATH)/bin/goimports -e -l {p} | sed "s/^/Failed: /"
 	@echo "$(NO_COLOR)\c"
 
 lint:
 	@echo "$(ATTN_COLOR)==> lint$(NO_COLOR)"
-	@echo $(PKGSDIRS) | xargs -I '{p}' -n1 golint {p}  | sed "s/^/Failed: /"
+	@echo $(PKGSDIRS) | xargs -I '{p}' -n1 $(GOPATH)/bin/golint {p}  | sed "s/^/Failed: /"
 	@echo "$(NO_COLOR)\c"
 
 vet:
