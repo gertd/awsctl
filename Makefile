@@ -13,7 +13,7 @@ $(GOMETALINTER):
 
 .PHONY: lint
 lint: $(GOMETALINTER)
-	gometalinter ./... --vendor
+	@echo gometalinter ./... --vendor
 
 BINARY := awsctl
 VERSION ?= vlatest
