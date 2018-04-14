@@ -8,8 +8,8 @@ BIN_DIR := $(GOPATH)/bin
 GOMETALINTER := $(BIN_DIR)/gometalinter
 
 $(GOMETALINTER):
-	@echo go get -u github.com/alecthomas/gometalinter
-	@echo gometalinter --install &> /dev/null
+	go get -u github.com/alecthomas/gometalinter
+	gometalinter --install
 
 .PHONY: lint
 lint: $(GOMETALINTER)
