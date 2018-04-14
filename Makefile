@@ -48,7 +48,7 @@ init:
 	@[[ -d $(BIN_DIR) ]] || mkdir $(BIN_DIR)
 
 build: init
-	@echo "$(WARN_COLOR)==> build GOOS=$(GOOS) GOARCH=$(GOARCH) $(ROOT_DIR) $(NO_COLOR)"
+	@echo "$(WARN_COLOR)==> build GOOS=$(GOOS) GOARCH=$(GOARCH) VERSION=$(VERSION) BUILD=$(BUILD) $(NO_COLOR)"
 	@GOOS=$(GOOS) GOARCH=$(GOARCH) go build $(LDFLAGS) -o $(BIN_DIR)/aws-ctl ./
 
 install: 
