@@ -37,8 +37,10 @@ clean:
 	@rm -rf ./bin
 
 get:
-	@echo "$(OK_COLOR)Get toolchain $(NO_COLOR)"
-	dep ensure
+	@echo "$(OK_COLOR)Get dependencies $(NO_COLOR)"
+	dep ensure -vendor-only
+	go get -u golang.org/x/tools/cmd/goimports
+	go get -u golang.org/x/lint/golint
 
 init:
 	@echo "$(WARN_COLOR)==> init $(NO_COLOR)"
@@ -60,12 +62,12 @@ check: format lint vet
 
 format:
 	@echo "$(ATTN_COLOR)==> format$(NO_COLOR)"
-	@echo $(PKGSDIRS) | xargs -I '{p}' -n1 $(GOPATH)/bin/goimports -e -l {p} | sed "s/^/Failed: /"
+	@echo $(PKGSDIRS) | xargs -I '{p}' -n1 goimports -e -l {p} | sed "s/^/Failed: /"
 	@echo "$(NO_COLOR)\c"
 
 lint:
 	@echo "$(ATTN_COLOR)==> lint$(NO_COLOR)"
-	@echo $(PKGSDIRS) | xargs -I '{p}' -n1 $(GOPATH)/bin/golint {p}  | sed "s/^/Failed: /"
+	@echo $(PKGSDIRS) | xargs -I '{p}' -n1 golint {p}  | sed "s/^/Failed: /"
 	@echo "$(NO_COLOR)\c"
 
 vet:
