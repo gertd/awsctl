@@ -25,9 +25,10 @@ endif
 
 GOARCH=amd64
 
-VERSION=`git describe --tags`
-BUILD=`date +%FT%T%z`
-LDFLAGS=-ldflags "-w -s -X github.com/gertd/awsctl/cmd.version=${VERSION} -X github.com/gertd/awsctl/cmd.build=${BUILD}"
+VERSION :=`git describe --tags`
+VERSION ?=`develop`
+BUILD :=`date +%FT%T%z`
+LDFLAGS :=-ldflags "-w -s -X github.com/gertd/awsctl/cmd.version=${VERSION} -X github.com/gertd/awsctl/cmd.build=${BUILD}"
 
 .PHONY: all get clean init build test check install
 all: build test check
