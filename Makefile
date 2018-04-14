@@ -26,8 +26,8 @@ endif
 GOARCH=amd64
 
 VERSION :=`git describe --tags`
-ifeq ($(VERSION),"")
-	VERSION ?=`develop`
+ifeq ($(strip $(VERSION)),)
+	VERSION = develop
 endif
 
 BUILD :=`date +%FT%T%z`
