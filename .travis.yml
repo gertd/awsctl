@@ -15,8 +15,8 @@ before_install:
 install:
   - dep ensure -vendor-only
 before_deploy:
-  - ls release/
   - make VERSION=${TRAVIS_TAG} release -j2
+  - ls release/
 deploy:
   provider: releases
   api_key:
