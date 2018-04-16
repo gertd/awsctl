@@ -22,6 +22,7 @@ else
 	endif
 endif
 GOARCH ?= amd64
+
 VERSION := `git describe --tags`
 BUILD := `date +%FT%T%z`
 LDFLAGS := -ldflags "-w -s -X github.com/gertd/awsctl/cmd.version=${VERSION} -X github.com/gertd/awsctl/cmd.build=${BUILD}"
@@ -42,16 +43,17 @@ build:
 .PHONY: test
 test:
 	@echo "$(WARN_COLOR)==> test $(NO_COLOR)"
-	go test $(PKGS)
+	@go test $(PKGS)
 
 $(GOMETALINTER):
-	go get -u github.com/alecthomas/gometalinter
-	gometalinter --install
+	@echo "$(WARN_COLOR)==> get gometalinter $(NO_COLOR)"
+	@go get -u github.com/alecthomas/gometalinter
+	@gometalinter --install &> /dev/null
 
 .PHONY: lint
 lint: $(GOMETALINTER)
 	@echo "$(ATTN_COLOR)==> lint$(NO_COLOR)"
-	gometalinter ./... --vendor --deadline=60s
+	@gometalinter ./... --vendor --deadline=60s
 	@echo "$(NO_COLOR)\c"
 
 .PHONY: $(PLATFORMS)
