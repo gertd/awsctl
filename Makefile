@@ -6,7 +6,9 @@ ATTN_COLOR=\033[33;01m
 
 PKGS := $(shell go list ./... | grep -v /vendor)
 
-BIN_DIR := $(GOPATH)/bin
+ROOT_DIR := $(git rev-parse --show-toplevel)
+BIN_DIR  := $(GOPATH)/bin
+
 GOMETALINTER := $(BIN_DIR)/gometalinter
 
 GOOS :=
@@ -23,49 +25,51 @@ else
 endif
 GOARCH ?= amd64
 
-VERSION := `git describe --tags`
-BUILD := `date +%FT%T%z`
-LDFLAGS := -ldflags "-w -s -X github.com/gertd/awsctl/cmd.version=${VERSION} -X github.com/gertd/awsctl/cmd.build=${BUILD}"
+VERSION:=`git describe --tags --dirty`
+COMMIT :=`git rev-parse --short HEAD 2>/dev/null`
+DATE   :=`date "+%FT%T%z"`
+
+LDFLAGS := -ldflags "-w -s -X github.com/gertd/awsctl/cmd.version=${VERSION} -X github.com/gertd/awsctl/cmd.date=${DATE} -X github.com/gertd/awsctl/cmd.commit=${COMMIT}"
 
 BINARY := awsctl
 VERSION ?= vlatest
 PLATFORMS := windows linux darwin
-os = $(word 1, $@)
+OS = $(word 1, $@)
 
 .PHONY: all
 all: build test lint
 
 .PHONY: build
 build:
-	@echo "$(WARN_COLOR)==> build GOOS=$(GOOS) GOARCH=$(GOARCH) $(NO_COLOR)"
+	@echo "$(ATTN_COLOR)==> build GOOS=$(GOOS) GOARCH=$(GOARCH) VERSION=$(VERSION)@$(COMMIT) $(NO_COLOR)"
 	@GOOS=$(GOOS) GOARCH=$(GOARCH) go build $(LDFLAGS) -o $(BIN_DIR)/aws-ctl ./
 
 .PHONY: test
 test:
-	@echo "$(WARN_COLOR)==> test $(NO_COLOR)"
+	@echo "$(ATTN_COLOR)==> test $(NO_COLOR)"
 	@go test $(PKGS)
 
 $(GOMETALINTER):
-	@echo "$(WARN_COLOR)==> get gometalinter $(NO_COLOR)"
+	@echo "$(ATTN_COLOR)==> get gometalinter $(NO_COLOR)"
 	@go get -u github.com/alecthomas/gometalinter
 	@gometalinter --install 
 
 .PHONY: lint
 lint: $(GOMETALINTER)
 	@echo "$(ATTN_COLOR)==> lint$(NO_COLOR)"
-	gometalinter ./... --vendor --deadline=60s
+	@gometalinter ./... --vendor --deadline=90s
 	@echo "$(NO_COLOR)\c"
 
 .PHONY: $(PLATFORMS)
 $(PLATFORMS):
-	@echo "$(WARN_COLOR)==> release GOOS=$(GOOS) GOARCH=$(GOARCH) release/$(BINARY)-$(VERSION)-$(os)-$(GOARCH) $(NO_COLOR)"
+	@echo "$(ATTN_COLOR)==> release GOOS=$(GOOS) GOARCH=$(GOARCH) release/$(BINARY)-$(os)-$(GOARCH) $(NO_COLOR)"
 	@mkdir -p release
-	@GOOS=$(os) GOARCH=$(GOARCH) go build $(LDFLAGS) -o release/$(BINARY)-$(VERSION)-$(os)-$(GOARCH)
+	@GOOS=$(OS) GOARCH=$(GOARCH) go build $(LDFLAGS) -o release/$(BINARY)-$(OS)-$(GOARCH)$(if $(findstring $(OS),windows),".exe","")
 
 .PHONY: release
 release: windows linux darwin
 
 .PHONY: install
 install:
-	@echo "$(WARN_COLOR)==> install $(NO_COLOR)"
+	@echo "$(ATTN_COLOR)==> install $(NO_COLOR)"
 	@GOOS=$(GOOS) GOARCH=$(GOARCH) go install $(LDFLAGS) ./
