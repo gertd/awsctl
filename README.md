@@ -6,32 +6,51 @@ Simple AWS command line for managing EC2 instances
 ## TL;DR;
 Key capabilities are to quickly list, start, stop EC2 service instances based on name or instance-id and to retrieve the AWS Windows password using the key-pair used to create a Windows image
 
-Currently this tools only supports using the AWS shared configuration state (located by default in ~/.aws)
+Currently this tools only supports using the AWS shared configuration state (by default located in ~/.aws)
 
 ## Installing AWSCTL
 To install AWSCTL there are a couple of options:
 
-Download the platform specific binary
+Download the platform specific binary from the Github [release](https://github.com/gertd/awsctl/releases) page
 
-Using go get (requires golang compiler 1.9.5 or higher to be installed)
+### Linux
+
+	curl -L https://github.com/gertd/awsctl/releases/download/v0.0.12/awsctl-linux-amd64 > ~/awsctl
+	chmod +x ~/awsctl
+
+### OSX
+
+	curl -L https://github.com/gertd/awsctl/releases/download/v0.0.12/awsctl-darwin-amd64 > awsctl
+	chmod +x ~/awsctl
+
+### Windows (using PowerShell)
+
+	[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+	Invoke-WebRequest -Uri https://github.com/gertd/awsctl/releases/download/v0.0.12/awsctl-windows-amd64.exe -OutFile ~\awsctl.exe
+
+### Go Get
+
+Using [go get](https://golang.org/cmd/go/#hdr-Download_and_install_packages_and_dependencies), this requires the golang compiler 1.10.1 or higher to be installed. See [https://golang.org/dl/](https://golang.org/dl/)
 
 	go get -x https://github.com/gertd/awsctl
+
+Runing `go get` will install the process architecture specific binary in the $GOPATH/bin directory
 
 ## Help
 
 	awsctl --help
-
 	AWS instance manager
 	
 	Usage:
 	  awsctl [command]
 	
 	Available Commands:
-	  help        Help about any command
-	  list        list running instances
+	  list        list instance status
 	  pwd         get Windows password
 	  start       start instances
 	  stop        stop instances
+	  version     display version information
+	  help        Help about any command
 	
 	Flags:
 	  -h, --help            help for awsctl
@@ -45,6 +64,12 @@ Using go get (requires golang compiler 1.9.5 or higher to be installed)
 	i-04907c97017c96798 - N/A             stopped       jumpbox
 	i-0908c2a42a46f67d6 - N/A             stopped
 	i-0a1ef338556f8d2b9 - xxx.xxx.xxx.xxx running       win2016
+
+Parameters:
+
+* --instance-id || --name (one of optional, defaults to all)
+* --region
+
 
 ## Start - start all or single service instance
 
@@ -68,6 +93,12 @@ Using go get (requires golang compiler 1.9.5 or higher to be installed)
 	waiting for instances to be started...
 	i-04907c97017c96798 - xxx.xxx.xxx.xxx running       jumpbox
 
+Parameters:
+
+* --instance-id || --name || --all (one of required)
+* --region (optional)
+
+
 ## Stop - stop all or single service instance
 
 ### Stop all 
@@ -88,13 +119,19 @@ Using go get (requires golang compiler 1.9.5 or higher to be installed)
 	i-04907c97017c96798 running -> stopping
 	waiting for instances to be stopped...
 	i-04907c97017c96798 - N/A             stopped       jumpbox
+	
+Parameters:
+
+* --instance-id || --name || --all (one of required)
+* --region (optional)
+
 
 ## Pwd - retrieve Windows password
 
-Required parameters:
+Parameters:
 
-* --instance0d or --name 
-* --keyfile
+* --instance-id || --name (one of required) 
+* --keyfile (required)
 
 **NOTE**: If the keyfile contains a passphrase, the user will be prompted to provide the passphrase
 
@@ -113,6 +150,13 @@ The fingerprints are provided to ease the correlation with the AWS KeyPair infor
 	sha1 a3:e6:21:6e:33:af:30:82:7f:95:9d:09:10:c6:ee:37:04:21:f3:bc
 	pwd  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
+
+## Version - version info
+
+	awsctl version
+	awsctl - v0.0.12@eb97789 [2018-04-16T21:13:22+0000].[darwin].[amd64]
+
+
 ## Todo List
 
 Capabilities to add:
@@ -123,3 +167,4 @@ Capabilities to add:
 - [X] make start/stop all explicit using commandline parameter --all
 - [X] support list -instance-id or --name for singleton status
 - [ ] add header to list output
+- [ ] add error handling for when AWS config is not present
