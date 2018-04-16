@@ -1,7 +1,7 @@
 package shared
 
 import (
-	"crypto/md5"
+	"crypto/md5" //nolint: gas
 	"crypto/rsa"
 	"crypto/sha1"
 	"crypto/x509"
@@ -87,7 +87,7 @@ func (k *KeyFile) FingerPrintMD5() string {
 		return ""
 	}
 
-	md5Sum := md5.Sum(pubBuf)
+	md5Sum := md5.Sum(pubBuf) // nolint: gas
 	return stringHash(md5Sum[:])
 }
 
