@@ -48,12 +48,12 @@ test:
 $(GOMETALINTER):
 	@echo "$(WARN_COLOR)==> get gometalinter $(NO_COLOR)"
 	@go get -u github.com/alecthomas/gometalinter
-	@gometalinter --install &> /dev/null
+	@gometalinter --install 
 
 .PHONY: lint
 lint: $(GOMETALINTER)
 	@echo "$(ATTN_COLOR)==> lint$(NO_COLOR)"
-	@gometalinter ./... --vendor --deadline=60s
+	gometalinter ./... --vendor --deadline=60s
 	@echo "$(NO_COLOR)\c"
 
 .PHONY: $(PLATFORMS)
