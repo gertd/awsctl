@@ -14,9 +14,9 @@ var stopCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(stopCmd)
-	stopCmd.Flags().StringVarP(&name, "name", "n", "", "AWS instance name")
-	stopCmd.Flags().StringVarP(&instanceID, "instance-id", "i", "", "AWS instance ID")
-	stopCmd.Flags().BoolVar(&all, "all", false, "stop all instances: default false")
+	stopCmd.Flags().StringVarP(&name, "name", "n", defName, "AWS instance name")
+	stopCmd.Flags().StringVarP(&instanceID, "instance-id", "i", defInstanceID, "AWS instance ID")
+	stopCmd.Flags().BoolVar(&all, "all", defAll, "stop all instances: default false")
 }
 
 func runStop(cmd *cobra.Command, args []string) error {

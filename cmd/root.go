@@ -16,7 +16,6 @@ const (
 )
 
 var (
-	cfgFile    string
 	region     string
 	name       string
 	keyFile    string
@@ -43,5 +42,5 @@ func init() {
 	cobra.OnInitialize()
 	cobra.EnableCommandSorting = false
 
-	RootCmd.PersistentFlags().StringVar(&region, "region", "", "AWS region: default all")
+	RootCmd.PersistentFlags().StringVar(&region, "region", defRegion, "AWS region: default all")
 }

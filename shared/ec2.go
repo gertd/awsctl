@@ -110,8 +110,6 @@ func (c *EC2Client) StartInstance(filters []*ec2.Filter) {
 	if err != nil {
 		log.Println(err)
 	}
-
-	return
 }
 
 // StopInstance --
@@ -157,8 +155,6 @@ func (c *EC2Client) StopInstance(filters []*ec2.Filter) {
 	if err != nil {
 		log.Println(err)
 	}
-
-	return
 }
 
 // GetPasswordData --

@@ -14,9 +14,9 @@ var startCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(startCmd)
-	startCmd.Flags().StringVarP(&name, "name", "n", "", "AWS instance name")
-	startCmd.Flags().StringVarP(&instanceID, "instance-id", "i", "", "AWS instance ID")
-	startCmd.Flags().BoolVar(&all, "all", false, "start all instances: default false")
+	startCmd.Flags().StringVarP(&name, "name", "n", defName, "AWS instance name")
+	startCmd.Flags().StringVarP(&instanceID, "instance-id", "i", defInstanceID, "AWS instance ID")
+	startCmd.Flags().BoolVar(&all, "all", defAll, "start all instances: default false")
 }
 
 func runStart(cmd *cobra.Command, args []string) error {

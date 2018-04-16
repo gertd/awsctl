@@ -72,7 +72,7 @@ func (k *KeyFile) FingerPrintSHA1() string {
 	}
 
 	sha1Sum := sha1.Sum(pkcs8Buf)
-	return fmt.Sprintf("%s", stringHash(sha1Sum[:]))
+	return stringHash(sha1Sum[:])
 }
 
 // FingerPrintMD5 -- MD5 fingerprint of public key of keyfile
@@ -88,7 +88,7 @@ func (k *KeyFile) FingerPrintMD5() string {
 	}
 
 	md5Sum := md5.Sum(pubBuf)
-	return fmt.Sprintf("%s", stringHash(md5Sum[:]))
+	return stringHash(md5Sum[:])
 }
 
 // Decrypt -- decrypt key using key of keyfile

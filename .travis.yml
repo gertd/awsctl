@@ -15,7 +15,7 @@ before_install:
 install:
   - dep ensure -vendor-only
 before_deploy:
-  - make VERSION=${TRAVIS_TAG} release -j2
+  - make VERSION=${TRAVIS_TAG} release -j3
   - ls release/
 deploy:
   provider: releases

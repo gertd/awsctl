@@ -18,11 +18,15 @@ var pwdCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(pwdCmd)
 
-	pwdCmd.Flags().StringVar(&instanceID, "instance-id", "", "AWS instance ID: default empty")
-	pwdCmd.MarkFlagRequired("instance-id")
+	pwdCmd.Flags().StringVar(&instanceID, "instance-id", defInstanceID, "AWS instance ID: default empty")
+	if err := pwdCmd.MarkFlagRequired("instance-id"); err != nil {
+		log.Fatalln(err)
+	}
 
-	pwdCmd.Flags().StringVar(&keyFile, "key-file", "", "key file")
-	pwdCmd.MarkFlagRequired("key-file")
+	pwdCmd.Flags().StringVar(&keyFile, "key-file", defKeyFile, "key file")
+	if err := pwdCmd.MarkFlagRequired("key-file"); err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func runGetPwd(cmd *cobra.Command, args []string) error {

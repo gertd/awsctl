@@ -29,9 +29,9 @@ func (i *InstanceFilter) Add(name, value string) {
 
 	} else {
 		// !ok == filter label does exists in map, add key and add fiter value to new array
-		v := []*string{&value}
-		i.filterMap[name] = v
+		v = []*string{&value}
 	}
+	i.filterMap[name] = v
 }
 
 // Get --
