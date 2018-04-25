@@ -51,24 +51,39 @@ Runing `go get` will install the process architecture specific binary in the $GO
 	  stop        stop instances
 	  version     display version information
 	  help        Help about any command
-	
+	  
 	Flags:
-	  -h, --help            help for awsctl
-	      --region string   AWS region: default all
-	
+	      --access-key-id string       AWS AccessKeyID
+	  -h, --help                       help for awsctl
+	      --profile string             AWS profile
+	      --region string              AWS region: default all
+	      --secret-access-key string   AWS SecretAccessKey
+	      		
 	Use "awsctl [command] --help" for more information about a command.
 
-## List - list service status
+## List - list instances in all regions
 
 	awsctl list
-	i-04907c97017c96798 - N/A             stopped       jumpbox
-	i-0908c2a42a46f67d6 - N/A             stopped
-	i-0a1ef338556f8d2b9 - xxx.xxx.xxx.xxx running       win2016
+	Instance ID         - Region         Public IP Addr  State         Name
+	-------------------------------------------------------------------------------
+	i-0908c2a42a46f67d6 - us-east-2      N/A             stopped
+	i-04907c97017c96798 - us-west-2      xxx.xxx.xxx.xxx running       jumpbox
+	i-0a1ef338556f8d2b9 - us-west-2      xxx.xxx.xxx.xxx running       win2016
+
+
+## List - list Windows instances in region us-west-2
+
+	awsctl list --windows --region us-west-2
+	Instance ID         - Region         Public IP Addr  State         Name
+	-------------------------------------------------------------------------------
+	i-0a1ef338556f8d2b9 - us-west-2      xxx.xxx.xxx.xxx running       win2016
 
 Parameters:
 
 * --instance-id || --name (one of optional, defaults to all)
 * --region
+* --windows
+
 
 
 ## Start - start all or single service instance
@@ -156,15 +171,29 @@ The fingerprints are provided to ease the correlation with the AWS KeyPair infor
 	awsctl version
 	awsctl - v0.0.12@eb97789 [2018-04-16T21:13:22+0000].[darwin].[amd64]
 
+## Authentication
+
+AWSCTL provides 3 ways to authenticate with AWS, in order of evaluation:
+
+1. Shared configuration (~/.aws/config)
+2. Environment variables (AWS_ACCESS_KEY_ID or AWS_ACCESS_KEY and AWS_SECRET_ACCESS_KEY or AWS_SECRET_KEY)
+3. Command line arguments --access-key-id and --secret-access-key
+
+Command line example:
+
+	awsctl list --access-key-id $MY_AWS_ACCESS_KEY_ID --secret-access-key $MY_AWS_SECRET_ACCESS_KEY
+
 
 ## Todo List
 
 Capabilities to add:
 
-- [ ] command line login override (incl masked password entry)
-- [ ] support for selecting configuration
+- [X] command line login override (incl masked password entry)
+- [X] support for selecting configuration
 - [X] short parameter support for instance (-i) and name (-n)
 - [X] make start/stop all explicit using commandline parameter --all
 - [X] support list -instance-id or --name for singleton status
-- [ ] add header to list output
-- [ ] add error handling for when AWS config is not present
+- [X] add header to list output
+- [X] add error handling for when AWS config is not present
+- [X] add windows filter to list command
+- [ ] Proviode masked input prompt when --access-key-id or --secret-access-key empty

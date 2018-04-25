@@ -15,11 +15,10 @@
             "program": "${workspaceFolder}",
             "env": {},
             "args": [
-                "pwd",
-                "--instance-id",
-                "i-0a1ef338556f8d2b9",
-                "--key-file",
-                "/Users/gertd/.ssh/id_rsa"
+                "list",
+                "--region",
+                "us-west-2",
+                "--windows"
             ],
             "showLog": true
         }

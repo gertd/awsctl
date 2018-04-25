@@ -4,33 +4,39 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/spf13/cobra"
 )
 
 const (
-	defName       = ""
-	defInstanceID = ""
-	defRegion     = ""
-	defKeyFile    = ""
-	defAll        = false
+	defName            = ""
+	defInstanceID      = ""
+	defAccessKeyID     = ""
+	defSecretAccessKey = ""
+	defRegion          = ""
+	defProfile         = ""
+	defKeyFile         = ""
+	defAll             = false
 )
 
 var (
-	region     string
-	name       string
-	keyFile    string
-	instanceID string
-	all        bool
+	region          string
+	profile         string
+	accessKeyID     string
+	secretAccessKey string
+	name            string
+	keyFile         string
+	instanceID      string
+	all             bool
 )
 
-// RootCmd -- represents the base command when called without any subcommands
+// RootCmd --
 var RootCmd = &cobra.Command{
 	Use:   "awsctl",
 	Short: "AWS instance manager",
 }
 
-// Execute -- adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
+// Execute --
 func Execute() {
 	if err := RootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -39,8 +45,22 @@ func Execute() {
 }
 
 func init() {
+
 	cobra.OnInitialize()
 	cobra.EnableCommandSorting = false
 
 	RootCmd.PersistentFlags().StringVar(&region, "region", defRegion, "AWS region: default all")
+	RootCmd.PersistentFlags().StringVar(&accessKeyID, "access-key-id", defAccessKeyID, "AWS AccessKeyID")
+	RootCmd.PersistentFlags().StringVar(&secretAccessKey, "secret-access-key", defSecretAccessKey, "AWS SecretAccessKey")
+	RootCmd.PersistentFlags().StringVar(&profile, "profile", defProfile, "AWS profile")
+}
+
+func cmdLineCreds() func() credentials.Value {
+	return func() credentials.Value {
+		return credentials.Value{
+			AccessKeyID:     accessKeyID,
+			SecretAccessKey: secretAccessKey,
+			SessionToken:    "",
+		}
+	}
 }

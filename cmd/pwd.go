@@ -31,18 +31,18 @@ func init() {
 
 func runGetPwd(cmd *cobra.Command, args []string) error {
 
-	client := shared.NewEC2Client(region)
+	client := shared.NewEC2Client(region, profile, cmdLineCreds())
 	defer client.Close()
 
 	pwdData := client.GetPasswordData(instanceID)
 	decData, err := base64.StdEncoding.DecodeString(pwdData)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
 
 	k, err := shared.ParseKeyFile(keyFile, shared.PassPhrasePrompt)
 	if err != nil {
-		log.Println(err)
+		return err
 	}
 
 	fmt.Println("md5 ", k.FingerPrintMD5())

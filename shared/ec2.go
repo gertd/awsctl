@@ -3,8 +3,11 @@ package shared
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+
 	"github.com/aws/aws-sdk-go/aws/session"
 
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -12,15 +15,44 @@ import (
 
 // EC2Client --
 type EC2Client struct {
-	client *ec2.EC2
+	session *session.Session
+	client  *ec2.EC2
 }
 
+var (
+	imageMap map[string]ec2.Image
+	keyMap   map[string]ec2.KeyPairInfo
+)
+
 // NewEC2Client --
-func NewEC2Client(region string) *EC2Client {
+func NewEC2Client(region, profile string, cmdLineCreds func() credentials.Value) *EC2Client {
 
 	client := EC2Client{}
 
-	opts := session.Options{SharedConfigState: session.SharedConfigEnable}
+	creds := credentials.NewChainCredentials(
+		[]credentials.Provider{
+			&credentials.SharedCredentialsProvider{},
+			&credentials.EnvProvider{},
+			&credentials.StaticProvider{Value: cmdLineCreds()},
+		})
+
+	config := aws.Config{
+		Credentials:                   creds,
+		CredentialsChainVerboseErrors: aws.Bool(true),
+	}
+
+	if len(region) > 0 {
+		config.Region = aws.String(region)
+	}
+
+	opts := session.Options{
+		Config:            config,
+		SharedConfigState: session.SharedConfigEnable,
+	}
+
+	if len(profile) > 0 {
+		opts.Profile = profile
+	}
 
 	sess, err := session.NewSessionWithOptions(opts)
 	if err != nil {
@@ -28,22 +60,25 @@ func NewEC2Client(region string) *EC2Client {
 		return nil
 	}
 
-	if len(region) > 0 {
-		sess.Config.Region = aws.String(region)
-	}
-
-	client.client = ec2.New(sess)
+	client.session = sess
+	client.client = ec2.New(client.session)
 	return &client
 }
 
 // Close --
 func (c *EC2Client) Close() {
-
+	c.session = nil
 	c.client = nil
 }
 
+// SetRegion --
+func (c *EC2Client) SetRegion(region string) {
+
+	c.session.Config.Region = aws.String(region)
+	c.client = ec2.New(c.session)
+}
+
 // GetInstances --
-// TODO -- add ability to filter?
 func (c *EC2Client) GetInstances(filters []*ec2.Filter) *Instances {
 
 	describeInstanceInput := &ec2.DescribeInstancesInput{
@@ -51,13 +86,16 @@ func (c *EC2Client) GetInstances(filters []*ec2.Filter) *Instances {
 	}
 
 	var err error
-	insts, err := c.client.DescribeInstances(describeInstanceInput)
+	out, err := c.client.DescribeInstances(describeInstanceInput)
 	if err != nil {
 		log.Println(err)
 		return nil
 	}
 
-	instances := Instances(*insts)
+	instances := Instances{}
+	for _, r := range out.Reservations {
+		instances = append(instances, r.Instances...)
+	}
 
 	return &instances
 }
@@ -169,17 +207,37 @@ func (c *EC2Client) GetPasswordData(instanceID string) string {
 }
 
 // Instances --
-type Instances ec2.DescribeInstancesOutput
+type Instances []*ec2.Instance
+
+// InstanceHeader --
+func InstanceHeader() {
+
+	fmt.Printf("%-19s - %-14s %-15s %-13s %s\n",
+		"Instance ID",
+		"Region",
+		"Public IP Addr",
+		"State",
+		"Name",
+	)
+	fmt.Printf("%s\n", strings.Repeat("-", 79))
+}
 
 // Print --
-func (i *Instances) Print() {
-	for _, v := range i.Reservations {
+func (in *Instances) Print() {
+	if in == nil {
+		return
+	}
 
-		fmt.Printf("%s - %-15s %-13s %s \n",
-			*v.Instances[0].InstanceId,
-			PStr(v.Instances[0].PublicIpAddress, "N/A"),
-			*v.Instances[0].State.Name,
-			TagFilter(v.Instances[0].Tags, "Name"),
+	for _, v := range *in {
+
+		az := *v.Placement.AvailabilityZone
+
+		fmt.Printf("%-19s - %-14s %-15s %-13s %s\n",
+			*v.InstanceId,
+			az[0:len(az)-1],
+			PStr(v.PublicIpAddress, "N/A"),
+			*v.State.Name,
+			TagFilter(v.Tags, "Name"),
 		)
 	}
 }
@@ -193,4 +251,106 @@ func PStr(pstr *string, replacement ...string) string {
 		return replacement[0]
 	}
 	return *pstr
+}
+
+// GetImageByID --
+func (c *EC2Client) GetImageByID(imageID *string) (*ec2.Image, error) {
+
+	if imageID == nil || len(*imageID) == 0 {
+		return nil, fmt.Errorf("GetImageByID(imageID) is nil or zero length")
+	}
+
+	if imageMap == nil {
+		imageMap = make(map[string]ec2.Image)
+	}
+
+	// cache lookup
+	i, ok := imageMap[*imageID]
+	if ok {
+		log.Printf("cache hit %v", *imageID)
+		return &i, nil
+	}
+
+	describeImageInput := &ec2.DescribeImagesInput{ImageIds: []*string{imageID}}
+	images, err := c.client.DescribeImages(describeImageInput)
+	if err != nil {
+		log.Printf("err %v", err)
+		return nil, err
+	}
+	for _, v := range images.Images {
+		imageMap[*v.ImageId] = *v
+	}
+
+	i, ok = imageMap[*imageID]
+	if ok {
+		return &i, nil
+	}
+	return nil, fmt.Errorf("image-id %s not found", *imageID)
+}
+
+// GetKeyPairInfoByName --
+func (c *EC2Client) GetKeyPairInfoByName(keyName *string) (*ec2.KeyPairInfo, error) {
+
+	if keyName == nil || len(*keyName) == 0 {
+		return nil, fmt.Errorf("GetKeyPairInfoByName(keyName) is nil or zero length")
+	}
+
+	if keyMap == nil {
+		keyMap = make(map[string]ec2.KeyPairInfo)
+	}
+
+	// cache lookup
+	i, ok := keyMap[*keyName]
+	if ok {
+		log.Printf("cache hit %v", *keyName)
+		return &i, nil
+	}
+
+	describeKeyPairsInput := ec2.DescribeKeyPairsInput{KeyNames: []*string{keyName}}
+	keys, err := c.client.DescribeKeyPairs(&describeKeyPairsInput)
+	if err != nil {
+		log.Printf("err %v", err)
+		return nil, err
+	}
+
+	for _, v := range keys.KeyPairs {
+		keyMap[*v.KeyName] = *v
+	}
+
+	i, ok = keyMap[*keyName]
+	if ok {
+		return &i, nil
+	}
+	return nil, fmt.Errorf("key name %s not found", *keyName)
+}
+
+// PlaformFilterFunc --
+type PlaformFilterFunc func(image *ec2.Image) bool
+
+// Windows --
+func Windows(image *ec2.Image) bool {
+	return image != nil && image.Platform != nil && strings.ToLower(*image.Platform) == "windows"
+}
+
+// All --
+func All(image *ec2.Image) bool { return true }
+
+// PlatformFilter --
+func (in *Instances) PlatformFilter(c *EC2Client, f PlaformFilterFunc) *Instances {
+
+	instances := Instances{}
+
+	for _, i := range *in {
+
+		img, err := c.GetImageByID(i.ImageId)
+		if err != nil {
+			log.Print(err)
+		}
+
+		if f(img) {
+			instances = append(instances, i)
+		}
+	}
+
+	return &instances
 }

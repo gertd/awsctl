@@ -21,7 +21,7 @@ func init() {
 
 func runStart(cmd *cobra.Command, args []string) error {
 
-	client := shared.NewEC2Client(region)
+	client := shared.NewEC2Client(region, profile, cmdLineCreds())
 	defer client.Close()
 
 	f := shared.NewInstanceFilter()
