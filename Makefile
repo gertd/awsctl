@@ -1,13 +1,18 @@
+# text reset
 NO_COLOR=\033[0m
+# green
 OK_COLOR=\033[32;01m
+#red
 ERROR_COLOR=\033[31;01m
-WARN_COLOR=\033[33;01m
+# cyan
+WARN_COLOR=\033[36;01m
+# yellow
 ATTN_COLOR=\033[33;01m
 
 PKGS := $(shell go list ./... | grep -v /vendor)
 
 ROOT_DIR := $(git rev-parse --show-toplevel)
-BIN_DIR  := $(GOPATH)/bin
+BIN_DIR  := $(PWD)/bin
 
 GOMETALINTER := $(BIN_DIR)/gometalinter
 
@@ -41,35 +46,35 @@ all: build test lint
 
 .PHONY: build
 build:
-	@echo "$(ATTN_COLOR)==> build GOOS=$(GOOS) GOARCH=$(GOARCH) VERSION=$(VERSION)@$(COMMIT) $(NO_COLOR)"
-	@GOOS=$(GOOS) GOARCH=$(GOARCH) go build $(LDFLAGS) -o $(BIN_DIR)/aws-ctl ./
+	@echo -e "$(ATTN_COLOR)==> build GOOS=$(GOOS) GOARCH=$(GOARCH) VERSION=$(VERSION)@$(COMMIT) $(NO_COLOR)"
+	@GOOS=$(GOOS) GOARCH=$(GOARCH) GO111MODULE=on go build $(LDFLAGS) -o $(BIN_DIR)/aws-ctl ./
 
 .PHONY: test
 test:
-	@echo "$(ATTN_COLOR)==> test $(NO_COLOR)"
+	@echo -e "$(ATTN_COLOR)==> test $(NO_COLOR)"
 	@go test $(PKGS)
 
 $(GOMETALINTER):
-	@echo "$(ATTN_COLOR)==> get gometalinter $(NO_COLOR)"
+	@echo -e "$(ATTN_COLOR)==> get gometalinter $(NO_COLOR)"
 	@go get -u github.com/alecthomas/gometalinter
 	@gometalinter --install 
 
 .PHONY: lint
 lint: $(GOMETALINTER)
-	@echo "$(ATTN_COLOR)==> lint$(NO_COLOR)"
+	@echo -e "$(ATTN_COLOR)==> lint$(NO_COLOR)"
 	@gometalinter ./... --vendor --deadline=90s
 	@echo "$(NO_COLOR)\c"
 
 .PHONY: $(PLATFORMS)
 $(PLATFORMS):
-	@echo "$(ATTN_COLOR)==> release GOOS=$(GOOS) GOARCH=$(GOARCH) release/$(BINARY)-$(os)-$(GOARCH) $(NO_COLOR)"
+	@echo -e "$(ATTN_COLOR)==> release GOOS=$(GOOS) GOARCH=$(GOARCH) release/$(BINARY)-$(OS)-$(GOARCH) $(NO_COLOR)"
 	@mkdir -p release
-	@GOOS=$(OS) GOARCH=$(GOARCH) go build $(LDFLAGS) -o release/$(BINARY)-$(OS)-$(GOARCH)$(if $(findstring $(OS),windows),".exe","")
+	@GOOS=$(OS) GOARCH=$(GOARCH) GO111MODULE=on go build $(LDFLAGS) -o release/$(BINARY)-$(OS)-$(GOARCH)$(if $(findstring $(OS),windows),".exe","")
 
 .PHONY: release
 release: windows linux darwin
 
 .PHONY: install
 install:
-	@echo "$(ATTN_COLOR)==> install $(NO_COLOR)"
-	@GOOS=$(GOOS) GOARCH=$(GOARCH) go install $(LDFLAGS) ./
+	@echo -e "$(ATTN_COLOR)==> install $(NO_COLOR)"
+	@GOOS=$(GOOS) GOARCH=$(GOARCH) GO111MODULE=on go install $(LDFLAGS) ./
