@@ -9,12 +9,10 @@ WARN_COLOR=\033[36;01m
 # yellow
 ATTN_COLOR=\033[33;01m
 
-PKGS := $(shell go list ./... | grep -v /vendor)
-
 ROOT_DIR := $(git rev-parse --show-toplevel)
 BIN_DIR  := $(PWD)/bin
 
-GOMETALINTER := $(BIN_DIR)/gometalinter
+LINTER := $(BIN_DIR)/golangci-lint
 
 GOOS :=
 ifeq ($(OS),Windows_NT)
@@ -46,28 +44,27 @@ all: build test lint
 
 .PHONY: build
 build:
-	@echo -e "$(ATTN_COLOR)==> build GOOS=$(GOOS) GOARCH=$(GOARCH) VERSION=$(VERSION)@$(COMMIT) $(NO_COLOR)"
+	@echo "$(ATTN_COLOR)==> build GOOS=$(GOOS) GOARCH=$(GOARCH) VERSION=$(VERSION)@$(COMMIT) $(NO_COLOR)"
 	@GOOS=$(GOOS) GOARCH=$(GOARCH) GO111MODULE=on go build $(LDFLAGS) -o $(BIN_DIR)/aws-ctl ./
 
 .PHONY: test
 test:
-	@echo -e "$(ATTN_COLOR)==> test $(NO_COLOR)"
-	@go test $(PKGS)
+	@echo "$(ATTN_COLOR)==> test $(NO_COLOR)"
+	@go test -v ./...
 
-$(GOMETALINTER):
-	@echo -e "$(ATTN_COLOR)==> get gometalinter $(NO_COLOR)"
-	@go get -u github.com/alecthomas/gometalinter
-	@gometalinter --install 
-
+$(LINTER):
+	@echo "$(ATTN_COLOR)==> get golangci-lint $(NO_COLOR)"
+	@curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s v1.15.0
+ 
 .PHONY: lint
-lint: $(GOMETALINTER)
-	@echo -e "$(ATTN_COLOR)==> lint$(NO_COLOR)"
-	@gometalinter ./... --vendor --deadline=90s
+lint: $(LINTER)
+	@echo "$(ATTN_COLOR)==> lint $(NO_COLOR)"
+	@$(LINTER) run
 	@echo "$(NO_COLOR)\c"
 
 .PHONY: $(PLATFORMS)
 $(PLATFORMS):
-	@echo -e "$(ATTN_COLOR)==> release GOOS=$(GOOS) GOARCH=$(GOARCH) release/$(BINARY)-$(OS)-$(GOARCH) $(NO_COLOR)"
+	@echo "$(ATTN_COLOR)==> release GOOS=$(GOOS) GOARCH=$(GOARCH) release/$(BINARY)-$(OS)-$(GOARCH) $(NO_COLOR)"
 	@mkdir -p release
 	@GOOS=$(OS) GOARCH=$(GOARCH) GO111MODULE=on go build $(LDFLAGS) -o release/$(BINARY)-$(OS)-$(GOARCH)$(if $(findstring $(OS),windows),".exe","")
 
@@ -76,5 +73,5 @@ release: windows linux darwin
 
 .PHONY: install
 install:
-	@echo -e "$(ATTN_COLOR)==> install $(NO_COLOR)"
+	@echo "$(ATTN_COLOR)==> install $(NO_COLOR)"
 	@GOOS=$(GOOS) GOARCH=$(GOARCH) GO111MODULE=on go install $(LDFLAGS) ./
