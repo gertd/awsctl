@@ -6,8 +6,7 @@ cache:
   directories:
     - $HOME/local
 script:
-  - env GO111MODULE=on go mod download
-  - make build
+  - make
 before_install:
 install:
 before_deploy:

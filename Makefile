@@ -28,7 +28,7 @@ else
 endif
 GOARCH ?= amd64
 
-VERSION:=`git describe --tags --dirty`
+VERSION:=`git describe --tags --dirty 2>/dev/null`
 COMMIT :=`git rev-parse --short HEAD 2>/dev/null`
 DATE   :=`date "+%FT%T%z"`
 
@@ -42,15 +42,19 @@ OS = $(word 1, $@)
 .PHONY: all
 all: build test lint
 
+deps:
+	@echo "$(ATTN_COLOR)==> download dependencies $(NO_COLOR)"
+	@GO111MODULE=on go mod download
+
 .PHONY: build
-build:
+build: deps
 	@echo "$(ATTN_COLOR)==> build GOOS=$(GOOS) GOARCH=$(GOARCH) VERSION=$(VERSION)@$(COMMIT) $(NO_COLOR)"
 	@GOOS=$(GOOS) GOARCH=$(GOARCH) GO111MODULE=on go build $(LDFLAGS) -o $(BIN_DIR)/aws-ctl ./
 
 .PHONY: test
 test:
 	@echo "$(ATTN_COLOR)==> test $(NO_COLOR)"
-	@go test -v ./...
+	@go test -v -count=1 ./...
 
 $(LINTER):
 	@echo "$(ATTN_COLOR)==> get golangci-lint $(NO_COLOR)"
