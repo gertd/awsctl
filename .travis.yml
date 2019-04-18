@@ -6,7 +6,8 @@ cache:
   directories:
     - $HOME/local
 script:
-  - make
+  - env GO111MODULE=on go mod download
+  - make build
 before_install:
 install:
 before_deploy:
@@ -26,3 +27,4 @@ notifications:
 env:
   global:
     - "PATH=$PATH:$HOME/local/bin"
+    - "GO111MODULE=on"
